@@ -1,6 +1,7 @@
 class Expression:
     pass
 
+
 class Binary(Expression):
     def __init__(self, left, operator, right):
         self.left = left
@@ -22,7 +23,7 @@ class Unary(Expression):
     def __init__(self, operator, right):
         self.operator = operator
         self.right = right
-        
+
 
 class Visitor:
     # Base methods to be overridden in child classes
@@ -37,3 +38,4 @@ class Visitor:
 
     def visit_unary(self, unary):
         raise NotImplementedError('visit_unary')
+
