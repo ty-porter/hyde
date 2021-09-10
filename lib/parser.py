@@ -1,7 +1,7 @@
 from lib.token import TokenType
 import lib.expressions as Expressions
 import lib.statements as Statements
-from lib.errors import Error as ParserError
+from lib.errors import Error as ParseError
 
 class Parser:
 
@@ -23,25 +23,43 @@ class Parser:
         self.current = 0
 
     def parse(self):
-        try:
-            statements = []
+        statements = []
 
-            while not self.is_at_end():
-                statements.append(self.statement())
+        while not self.is_at_end():
+            statements.append(self.declaration())
 
-            return statements
-        except ParserError as ex:
-            self.runtime.error(ex)
+        return statements
 
     # Grammar rules
+    def declaration(self):
+        try:
+            if self.match(TokenType.VAR):
+                return self.var_declaration()
+
+            return self.statement()
+        except ParseError as _ex:
+            self.synchronize()
+
     def expression(self):
-        return self.equality()
+        return self.assignment()
 
     def statement(self):
         if self.match(TokenType.PRINT):
             return self.print_statement()
 
         return self.expression_statement()
+
+    def var_declaration(self):
+        name = self.consume(TokenType.IDENTIFIER, 'Expected variable name.')
+
+        initializer = None
+
+        if self.match(TokenType.EQUAL):
+            initializer = self.expression()
+
+        self.consume(TokenType.SEMICOLON, "Expected ';' after variable definition.")
+
+        return Statements.Var(name, initializer)
 
     def print_statement(self):
         value = self.expression()
@@ -103,13 +121,15 @@ class Parser:
             return Expressions.Literal(None)
         elif self.match(TokenType.NUMBER, TokenType.STRING):
             return Expressions.Literal(self.previous().literal)
+        elif self.match(TokenType.IDENTIFIER):
+            return Expressions.Variable(self.previous())
         elif self.match(TokenType.LEFT_PAREN):
             expr = self.expression()
             self.consume(TokenType.RIGHT_PAREN, "Expect ')' after expression")
 
             return Expressions.Grouping(expr)
 
-        self.error('Expected an expression.')
+        self.error(self.peek(), 'Expected an expression.')
 
     def equality(self):
         expr = self.comparison()
@@ -118,6 +138,22 @@ class Parser:
             operator = self.previous()
             right = self.comparison()
             expr = Expressions.Binary(expr, operator, right)
+
+        return expr
+
+    def assignment(self):
+        expr = self.equality()
+
+        if self.match(TokenType.EQUAL):
+            equals = self.previous()
+            value = self.assignment()
+
+            if isinstance(expr, Expressions.Variable):
+                name = expr.name
+                
+                return Expressions.Assign(name, value)
+
+            self.error(equals, 'Invalid assignment target.')
 
         return expr
 
@@ -153,7 +189,7 @@ class Parser:
         if self.check(token_type):
             return self.advance()
 
-        self.error(message)
+        self.error(self.peek(), message)
 
     def synchronize(self):
         self.advance()
@@ -170,5 +206,5 @@ class Parser:
     def is_at_end(self):
         return self.peek().type == TokenType.EOF
 
-    def error(self, message):
-        raise ParserError(self.peek(), message)
+    def error(self, token, message):
+        raise ParseError(token, message)

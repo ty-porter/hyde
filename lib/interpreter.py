@@ -1,3 +1,4 @@
+from lib.environment import Environment
 from lib.errors import Error as InterpreterError
 from lib.errors import RuntimeError as InterpreterRuntimeError
 from lib.token import TokenType
@@ -6,7 +7,8 @@ from lib.visitor import Visitor
 
 class Interpreter(Visitor):
     def __init__(self, runtime):
-        self.runtime = runtime
+        self.runtime     = runtime
+        self.environment = Environment()
 
     def interpret(self, statements):
         try:
@@ -21,6 +23,12 @@ class Interpreter(Visitor):
         self.visit(stmt)
 
     # Visit Expressions
+    def visit_assign(self, assign):
+        value = self.visit(assign.value)
+        self.environment.assign(assign.name, value)
+
+        return value
+
     def visit_binary(self, binary):
         left  = self.visit(binary.left)
         right = self.visit(binary.right)
@@ -77,6 +85,9 @@ class Interpreter(Visitor):
 
         return None
 
+    def visit_variable(self, variable):
+        return self.environment.get(variable.name)
+
     # Visit Statements
     def visit_expression(self, stmt):
         self.visit(stmt.expression)
@@ -86,6 +97,16 @@ class Interpreter(Visitor):
     def visit_print(self, stmt):
         value = self.visit(stmt.expression)
         print(value)
+
+        return None
+
+    def visit_var(self, stmt):
+        value = None
+        
+        if stmt.initializer is not None:
+            value = self.visit(stmt.initializer)
+
+        self.environment.define(stmt.name.lexeme, value)
 
         return None
 

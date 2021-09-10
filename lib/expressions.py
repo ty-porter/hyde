@@ -2,6 +2,12 @@ class Expression:
     pass
 
 
+class Assign(Expression):
+    def __init__(self, name, value):
+        self.name = name
+        self.value = value
+
+
 class Binary(Expression):
     def __init__(self, left, operator, right):
         self.left = left
@@ -25,8 +31,16 @@ class Unary(Expression):
         self.right = right
 
 
+class Variable(Expression):
+    def __init__(self, name):
+        self.name = name
+
+
 class Visitor:
     # Base methods to be overridden in child classes
+    def visit_assign(self, assign):
+        raise NotImplementedError('visit_assign')
+
     def visit_binary(self, binary):
         raise NotImplementedError('visit_binary')
 
@@ -38,4 +52,7 @@ class Visitor:
 
     def visit_unary(self, unary):
         raise NotImplementedError('visit_unary')
+
+    def visit_variable(self, variable):
+        raise NotImplementedError('visit_variable')
 

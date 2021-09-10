@@ -5,10 +5,12 @@ class ASTGenerator:
 
     EXPRESSIONS = {
         'Expression': None,
+        'Assign': ['name', 'value'],
         'Binary': ['left', 'operator', 'right'],
         'Grouping': ['expression'],
         'Literal': ['value'],
-        'Unary': ['operator', 'right']
+        'Unary': ['operator', 'right'],
+        'Variable': ['name']
     }
 
     STATEMENTS = {
