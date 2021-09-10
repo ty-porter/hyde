@@ -22,17 +22,28 @@ class Interpreter(Visitor):
     def execute(self, stmt):
         self.visit(stmt)
 
+    def execute_block(self, statements, environment):
+        previous = self.environment
+
+        try:
+            self.environment = environment
+
+            for statement in statements:
+                self.execute(statement)
+        finally:
+            self.environment = previous
+
     # Visit Expressions
-    def visit_assign(self, assign):
-        value = self.visit(assign.value)
-        self.environment.assign(assign.name, value)
+    def visit_assign(self, expr):
+        value = self.visit(expr.value)
+        self.environment.assign(expr.name, value)
 
         return value
 
-    def visit_binary(self, binary):
-        left  = self.visit(binary.left)
-        right = self.visit(binary.right)
-        operator = binary.operator
+    def visit_binary(self, expr):
+        left  = self.visit(expr.left)
+        right = self.visit(expr.right)
+        operator = expr.operator
 
         if operator.type == TokenType.GREATER:
             self.check_number_operands(operator, left, right)
@@ -68,37 +79,34 @@ class Interpreter(Visitor):
             self.check_number_operands(operator, left, right)
             return float(left) * float(right)
 
-    def visit_grouping(self, grouping):
-        return self.visit(grouping.expression)
+    def visit_grouping(self, expr):
+        return self.visit(expr.expression)
 
-    def visit_literal(self, literal):
-        return literal.value
+    def visit_literal(self, expr):
+        return expr.value
 
-    def visit_unary(self, unary):
-        right = self.visit(unary.right)
+    def visit_unary(self, expr):
+        right = self.visit(expr.right)
 
-        if unary.operator.type == TokenType.BANG:
+        if expr.operator.type == TokenType.BANG:
             return not self.is_truthy(right)
-        elif unary.operator.type == TokenType.MINUS:
-            self.check_number_operand(unary.operator, right)
+        elif expr.operator.type == TokenType.MINUS:
+            self.check_number_operand(expr.operator, right)
             return float(right) * -1
 
-        return None
-
-    def visit_variable(self, variable):
-        return self.environment.get(variable.name)
+    def visit_variable(self, expr):
+        return self.environment.get(expr.name)
 
     # Visit Statements
+    def visit_block(self, stmt):
+        self.execute_block(stmt.statements, Environment(enclosing = self.environment))
+
     def visit_expression(self, stmt):
         self.visit(stmt.expression)
-
-        return None
 
     def visit_print(self, stmt):
         value = self.visit(stmt.expression)
         print(value)
-
-        return None
 
     def visit_var(self, stmt):
         value = None
@@ -108,8 +116,7 @@ class Interpreter(Visitor):
 
         self.environment.define(stmt.name.lexeme, value)
 
-        return None
-
+    # Helpers
     def is_truthy(self, object):
         if object is None:
             return False

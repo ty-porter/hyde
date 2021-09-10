@@ -31,6 +31,16 @@ class Parser:
         return statements
 
     # Grammar rules
+    def block(self):
+        statements = []
+        
+        while not self.check(TokenType.RIGHT_BRACE) and not self.is_at_end():
+            statements.append(self.declaration())
+
+        self.consume(TokenType.RIGHT_BRACE, "Expected '}' after block.")
+
+        return statements
+
     def declaration(self):
         try:
             if self.match(TokenType.VAR):
@@ -46,6 +56,8 @@ class Parser:
     def statement(self):
         if self.match(TokenType.PRINT):
             return self.print_statement()
+        if self.match(TokenType.LEFT_BRACE):
+            return Statements.Block(self.block())
 
         return self.expression_statement()
 

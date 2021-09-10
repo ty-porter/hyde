@@ -15,6 +15,7 @@ class ASTGenerator:
 
     STATEMENTS = {
         'Statement': None,
+        'Block': ['statements'],
         'Expression': ['expression'],
         'Print': ['expression'],
         'Var': ['name', 'initializer']

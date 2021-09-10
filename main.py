@@ -5,7 +5,7 @@ from lib.tokenizer import Tokenizer
 import sys
 
 
-class PyLang:
+class Hyde:
     def __init__(self):
         self.debug_enabled     = False
         self.had_error         = False
@@ -39,7 +39,7 @@ class PyLang:
             try:
                 line = input("> ")
 
-                self.execute(line)
+                print(self.execute(line))
             except (EOFError, KeyboardInterrupt):
                 print() # print a newline
                 sys.exit()
@@ -74,5 +74,5 @@ class PyLang:
         return args
 
 
-lang = PyLang()
+lang = Hyde()
 lang.run()
