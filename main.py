@@ -39,7 +39,7 @@ class Hyde:
             try:
                 line = input("> ")
 
-                print(self.execute(line))
+                self.execute(line)
             except (EOFError, KeyboardInterrupt):
                 print() # print a newline
                 sys.exit()
@@ -58,15 +58,16 @@ class Hyde:
         self.interpreter.interpret(statements)
 
     def error(self, error):
-        self.report(error.token.line, type(error).__name__, error.message)
+        self.report(error.token.line, type(error).__name__, error.token.lexeme, error.message)
         self.had_error = True
 
     def runtime_error(self, error):
-        self.report(error.token.line, type(error).__name__, error.message)
+        self.report(error.token.line, type(error).__name__, error.token.lexeme, error.message)
         self.had_runtime_error = True
 
-    def report(self, line, error_type, message):
-        print(f'[Line {line}] {error_type}: {message}')
+    def report(self, line, error_type, location, message):
+        error_description = f'{error_type} at {location}' if location else error_type
+        print(f'[Line {line}] {error_description}: {message}')
 
     def parse_args(self):
         args = sys.argv[1:]

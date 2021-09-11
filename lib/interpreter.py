@@ -1,8 +1,16 @@
 from lib.environment import Environment
-from lib.errors import Error as InterpreterError
-from lib.errors import RuntimeError as InterpreterRuntimeError
+from lib.environment import RuntimeError as EnvironmentRuntimeError
+from lib.errors import BaseError
 from lib.token import TokenType
 from lib.visitor import Visitor
+
+
+class InterpreterError(BaseError):
+    pass
+
+
+class InterpreterRuntimeError(BaseError):
+    pass
 
 
 class Interpreter(Visitor):
@@ -16,7 +24,7 @@ class Interpreter(Visitor):
                 self.execute(statement)
         except InterpreterError as ex:
             self.runtime.error(ex)
-        except InterpreterRuntimeError as ex:
+        except (InterpreterRuntimeError, EnvironmentRuntimeError) as ex:
             self.runtime.runtime_error(ex)
 
     def execute(self, stmt):
@@ -103,6 +111,12 @@ class Interpreter(Visitor):
 
     def visit_expression(self, stmt):
         self.visit(stmt.expression)
+
+    def visit_ifstmt(self, stmt):
+        if self.is_truthy(self.visit(stmt.condition)):
+            self.execute(stmt.then_branch)
+        else:
+            self.execute(stmt.else_branch)
 
     def visit_print(self, stmt):
         value = self.visit(stmt.expression)

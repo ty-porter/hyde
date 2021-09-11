@@ -17,6 +17,7 @@ class ASTGenerator:
         'Statement': None,
         'Block': ['statements'],
         'Expression': ['expression'],
+        'IfStmt': ['condition', 'then_branch', 'else_branch'], # 'if' is a reserved word in Python
         'Print': ['expression'],
         'Var': ['name', 'initializer']
     }

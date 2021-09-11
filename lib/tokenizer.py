@@ -1,5 +1,9 @@
-from lib.errors import Error as TokenizerError
+from lib.errors import BaseError
 from lib.token import Token, TokenType
+
+class TokenizerError(BaseError):
+    pass
+
 
 class Tokenizer:
 
@@ -170,4 +174,6 @@ class Tokenizer:
             self.add_token(TokenType.IDENTIFIER)
 
     def error(self, message):
-        self.runtime.error(self.line, TokenizerError, message)
+        # TODO: Hacky, need to build up a fake error in order to display the line and message correctly.
+        ex = TokenizerError(Token(None, None, None, self.line), message)
+        self.runtime.error(ex)

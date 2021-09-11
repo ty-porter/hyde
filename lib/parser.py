@@ -1,7 +1,11 @@
+from lib.errors import BaseError
 from lib.token import TokenType
 import lib.expressions as Expressions
 import lib.statements as Statements
-from lib.errors import Error as ParseError
+
+class ParseError(BaseError):
+    pass
+
 
 class Parser:
 
@@ -54,9 +58,11 @@ class Parser:
         return self.assignment()
 
     def statement(self):
-        if self.match(TokenType.PRINT):
+        if self.match(TokenType.IF):
+            return self.if_statement()
+        elif self.match(TokenType.PRINT):
             return self.print_statement()
-        if self.match(TokenType.LEFT_BRACE):
+        elif self.match(TokenType.LEFT_BRACE):
             return Statements.Block(self.block())
 
         return self.expression_statement()
@@ -72,6 +78,19 @@ class Parser:
         self.consume(TokenType.SEMICOLON, "Expected ';' after variable definition.")
 
         return Statements.Var(name, initializer)
+
+    def if_statement(self):
+        self.consume(TokenType.LEFT_PAREN, "Expected '(' after 'if'.")
+        condition = self.expression()
+        self.consume(TokenType.RIGHT_PAREN, "Expected ')' after condition.")
+
+        then_branch = self.statement()
+        else_branch = None
+
+        if self.match(TokenType.ELSE):
+            else_branch = self.statement()
+
+        return Statements.IfStmt(condition, then_branch, else_branch)
 
     def print_statement(self):
         value = self.expression()

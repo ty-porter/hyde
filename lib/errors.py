@@ -4,9 +4,9 @@ class BaseError(Exception):
         self.message = message
 
 
-class Error(BaseError):
-    pass
+# class Error(BaseError):
+#     pass
 
 
-class RuntimeError(BaseError):
-    pass
+# class RuntimeError(BaseError):
+#     pass

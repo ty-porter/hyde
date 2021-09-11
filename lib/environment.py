@@ -1,4 +1,9 @@
-from lib.errors import RuntimeError
+from lib.errors import BaseError
+
+
+class RuntimeError(BaseError):
+    pass
+
 
 class Environment:
     def __init__(self, enclosing = None):
