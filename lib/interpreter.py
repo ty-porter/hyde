@@ -92,6 +92,18 @@ class Interpreter(Visitor):
 
     def visit_literal(self, expr):
         return expr.value
+    
+    def visit_logical(self, expr):
+        left = self.visit(expr.left)
+
+        if expr.operator.type == TokenType.OR:
+            if self.is_truthy(left):
+                return left
+        else:
+            if not self.is_truthy(left):
+                return left
+
+        return self.visit(expr.right)
 
     def visit_unary(self, expr):
         right = self.visit(expr.right)
@@ -121,6 +133,10 @@ class Interpreter(Visitor):
     def visit_print(self, stmt):
         value = self.visit(stmt.expression)
         print(value)
+
+    def visit_whilestmt(self, stmt):
+        while self.is_truthy(self.visit(stmt.condition)):
+            self.execute(stmt.body)
 
     def visit_var(self, stmt):
         value = None

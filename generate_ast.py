@@ -9,17 +9,20 @@ class ASTGenerator:
         'Binary': ['left', 'operator', 'right'],
         'Grouping': ['expression'],
         'Literal': ['value'],
+        'Logical': ['left', 'operator', 'right'],
         'Unary': ['operator', 'right'],
         'Variable': ['name']
     }
 
     STATEMENTS = {
+        # if and while are reserved words in Python
         'Statement': None,
         'Block': ['statements'],
         'Expression': ['expression'],
-        'IfStmt': ['condition', 'then_branch', 'else_branch'], # 'if' is a reserved word in Python
+        'IfStmt': ['condition', 'then_branch', 'else_branch'],
         'Print': ['expression'],
-        'Var': ['name', 'initializer']
+        'Var': ['name', 'initializer'],
+        'WhileStmt': ['condition', 'body']
     }
 
     @classmethod

@@ -4,6 +4,7 @@ from lib.statements import Visitor as StatementVisitor
 
 class Visitor(ExpressionVisitor, StatementVisitor):
     def visit(self, other):
+        # This should never happen, but prevent Python errors from showing if it does
         if other is None:
             return
 

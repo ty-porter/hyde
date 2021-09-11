@@ -30,6 +30,12 @@ class Var(Statement):
         self.initializer = initializer
 
 
+class WhileStmt(Statement):
+    def __init__(self, condition, body):
+        self.condition = condition
+        self.body = body
+
+
 class Visitor:
     # Base methods to be overridden in child classes
     def visit_block(self, block):
@@ -46,4 +52,7 @@ class Visitor:
 
     def visit_var(self, var):
         raise NotImplementedError('visit_var')
+
+    def visit_whilestmt(self, whilestmt):
+        raise NotImplementedError('visit_whilestmt')
 

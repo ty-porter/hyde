@@ -25,6 +25,13 @@ class Literal(Expression):
         self.value = value
 
 
+class Logical(Expression):
+    def __init__(self, left, operator, right):
+        self.left = left
+        self.operator = operator
+        self.right = right
+
+
 class Unary(Expression):
     def __init__(self, operator, right):
         self.operator = operator
@@ -49,6 +56,9 @@ class Visitor:
 
     def visit_literal(self, literal):
         raise NotImplementedError('visit_literal')
+
+    def visit_logical(self, logical):
+        raise NotImplementedError('visit_logical')
 
     def visit_unary(self, unary):
         raise NotImplementedError('visit_unary')
