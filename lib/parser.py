@@ -238,4 +238,10 @@ class Parser:
         return self.peek().type == TokenType.EOF
 
     def error(self, token, message):
-        raise ParseError(token, message)
+        '''
+        Reports error to Hyde runtime and re-raises error
+        '''
+        error = ParseError(token, message)
+        self.runtime.error(error)
+
+        raise error
