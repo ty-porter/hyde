@@ -12,6 +12,13 @@ class Expression(Statement):
         self.expression = expression
 
 
+class Function(Statement):
+    def __init__(self, name, params, body):
+        self.name = name
+        self.params = params
+        self.body = body
+
+
 class IfStmt(Statement):
     def __init__(self, condition, then_branch, else_branch):
         self.condition = condition
@@ -22,6 +29,12 @@ class IfStmt(Statement):
 class Print(Statement):
     def __init__(self, expression):
         self.expression = expression
+
+
+class ReturnStmt(Statement):
+    def __init__(self, keyword, value):
+        self.keyword = keyword
+        self.value = value
 
 
 class Var(Statement):
@@ -44,11 +57,17 @@ class Visitor:
     def visit_expression(self, expression):
         raise NotImplementedError('visit_expression')
 
+    def visit_function(self, function):
+        raise NotImplementedError('visit_function')
+
     def visit_ifstmt(self, ifstmt):
         raise NotImplementedError('visit_ifstmt')
 
     def visit_print(self, print):
         raise NotImplementedError('visit_print')
+
+    def visit_returnstmt(self, returnstmt):
+        raise NotImplementedError('visit_returnstmt')
 
     def visit_var(self, var):
         raise NotImplementedError('visit_var')

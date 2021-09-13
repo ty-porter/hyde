@@ -15,6 +15,13 @@ class Binary(Expression):
         self.right = right
 
 
+class Call(Expression):
+    def __init__(self, callee, paren, arguments):
+        self.callee = callee
+        self.paren = paren
+        self.arguments = arguments
+
+
 class Grouping(Expression):
     def __init__(self, expression):
         self.expression = expression
@@ -50,6 +57,9 @@ class Visitor:
 
     def visit_binary(self, binary):
         raise NotImplementedError('visit_binary')
+
+    def visit_call(self, call):
+        raise NotImplementedError('visit_call')
 
     def visit_grouping(self, grouping):
         raise NotImplementedError('visit_grouping')

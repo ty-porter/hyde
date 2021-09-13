@@ -7,6 +7,7 @@ class ASTGenerator:
         'Expression': None,
         'Assign': ['name', 'value'],
         'Binary': ['left', 'operator', 'right'],
+        'Call': ['callee', 'paren', 'arguments'],
         'Grouping': ['expression'],
         'Literal': ['value'],
         'Logical': ['left', 'operator', 'right'],
@@ -15,12 +16,14 @@ class ASTGenerator:
     }
 
     STATEMENTS = {
-        # if and while are reserved words in Python
+        # if, return, and while are reserved words in Python
         'Statement': None,
         'Block': ['statements'],
         'Expression': ['expression'],
+        'Function': ['name', 'params', 'body'],
         'IfStmt': ['condition', 'then_branch', 'else_branch'],
         'Print': ['expression'],
+        'ReturnStmt': ['keyword', 'value'],
         'Var': ['name', 'initializer'],
         'WhileStmt': ['condition', 'body']
     }

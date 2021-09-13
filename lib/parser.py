@@ -47,7 +47,9 @@ class Parser:
 
     def declaration(self):
         try:
-            if self.match(TokenType.VAR):
+            if self.match(TokenType.FUN):
+                return self.function("function")
+            elif self.match(TokenType.VAR):
                 return self.var_declaration()
 
             return self.statement()
@@ -57,6 +59,29 @@ class Parser:
     def expression(self):
         return self.assignment()
 
+    def function(self, kind):
+        name = self.consume(TokenType.IDENTIFIER, f'Expected {kind} name.')
+
+        self.consume(TokenType.LEFT_PAREN, f"Expected '(' after {kind} name.")
+
+        parameters = []
+        if not self.check(TokenType.RIGHT_PAREN):
+            first_loop = True
+            
+            while first_loop or self.match(TokenType.COMMA):
+                first_loop = False
+
+                parameters.append(
+                    self.consume(TokenType.IDENTIFIER, 'Expected parameter name')
+                )
+
+        self.consume(TokenType.RIGHT_PAREN, "Expected ')' after parameters.")
+        self.consume(TokenType.LEFT_BRACE, f"Expected '{{' before {kind} body.")
+
+        body = self.block()
+
+        return Statements.Function(name, parameters, body)
+
     def statement(self):
         if self.match(TokenType.FOR):
             return self.for_statement()
@@ -64,6 +89,8 @@ class Parser:
             return self.if_statement()
         elif self.match(TokenType.PRINT):
             return self.print_statement()
+        elif self.match(TokenType.RETURN):
+            return self.return_statement()
         elif self.match(TokenType.WHILE):
             return self.while_statement()
         elif self.match(TokenType.LEFT_BRACE):
@@ -142,6 +169,16 @@ class Parser:
 
         return Statements.Print(value)
 
+    def return_statement(self):
+        keyword = self.previous()
+        value = None
+        if not self.check(TokenType.SEMICOLON):
+            value = self.expression()
+    
+        self.consume(TokenType.SEMICOLON, "Expected ';' after return value.")
+
+        return Statements.ReturnStmt(keyword, value)
+
     def while_statement(self):
         self.consume(TokenType.LEFT_PAREN, "Expected '(' after 'while'.")
         condition = self.expression()
@@ -193,7 +230,7 @@ class Parser:
 
             return Expressions.Unary(operator, right)
 
-        return self.primary()
+        return self.call()
 
     def primary(self):
         if self.match(TokenType.FALSE):
@@ -259,6 +296,30 @@ class Parser:
             self.error(equals, 'Invalid assignment target.')
 
         return expr
+
+    def call(self):
+        expr = self.primary()
+
+        while True:
+            if self.match(TokenType.LEFT_PAREN):
+                expr = self.finish_call(expr)
+            else:
+                break
+
+        return expr
+
+    def finish_call(self, callee):
+        arguments = []
+
+        if not self.check(TokenType.RIGHT_PAREN):
+            arguments.append(self.expression())
+
+            while self.match(TokenType.COMMA):
+                arguments.append(self.expression())
+
+        paren = self.consume(TokenType.RIGHT_PAREN, "Expected ')' after arguments.")
+
+        return Expressions.Call(callee, paren, arguments)
 
     # Primitive operations for managing stack pointer
     def match(self, *token_types):

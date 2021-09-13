@@ -1,6 +1,9 @@
+from lib.hyde_function import HydeFunction
+from lib.globals import Globals
+from lib.hyde_callable import HydeCallable
 from lib.environment import Environment
 from lib.environment import RuntimeError as EnvironmentRuntimeError
-from lib.errors import BaseError
+from lib.errors import BaseError, Return
 from lib.token import TokenType
 from lib.visitor import Visitor
 
@@ -16,7 +19,10 @@ class InterpreterRuntimeError(BaseError):
 class Interpreter(Visitor):
     def __init__(self, runtime):
         self.runtime     = runtime
-        self.environment = Environment()
+        self.globals     = Environment()
+        self.environment = self.globals
+
+        Globals.define(self.globals)
 
     def interpret(self, statements):
         try:
@@ -28,7 +34,7 @@ class Interpreter(Visitor):
             self.runtime.runtime_error(ex)
 
     def execute(self, stmt):
-        self.visit(stmt)
+        return self.visit(stmt)
 
     def execute_block(self, statements, environment):
         previous = self.environment
@@ -87,6 +93,23 @@ class Interpreter(Visitor):
             self.check_number_operands(operator, left, right)
             return float(left) * float(right)
 
+    def visit_call(self, expr):
+        callee = self.visit(expr.callee)
+
+        if not isinstance(callee, HydeCallable):
+            self.error(expr.paren, 'Can only call functions and classes.')
+
+        arguments = []
+
+        for argument in expr.arguments:
+            arguments.append(self.visit(argument))
+
+
+        if len(arguments) != callee.arity:
+            self.error(expr.paren, f'Expected {callee.arity} arguments but got {len(arguments)}')
+
+        return callee.call(self, arguments)
+
     def visit_grouping(self, expr):
         return self.visit(expr.expression)
 
@@ -124,6 +147,10 @@ class Interpreter(Visitor):
     def visit_expression(self, stmt):
         self.visit(stmt.expression)
 
+    def visit_function(self, stmt):
+        fn = HydeFunction(stmt, self.environment)
+        self.environment.define(stmt.name.lexeme, fn)
+
     def visit_ifstmt(self, stmt):
         if self.is_truthy(self.visit(stmt.condition)):
             self.execute(stmt.then_branch)
@@ -133,6 +160,14 @@ class Interpreter(Visitor):
     def visit_print(self, stmt):
         value = self.visit(stmt.expression)
         print(value)
+
+    def visit_returnstmt(self, stmt):
+        value = None
+
+        if stmt.value is not None:
+            value = self.visit(stmt.value)
+
+        raise Return(value)
 
     def visit_whilestmt(self, stmt):
         while self.is_truthy(self.visit(stmt.condition)):

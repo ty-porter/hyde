@@ -4,9 +4,6 @@ class BaseError(Exception):
         self.message = message
 
 
-# class Error(BaseError):
-#     pass
-
-
-# class RuntimeError(BaseError):
-#     pass
+class Return(Exception):
+    def __init__(self, value):
+        self.value = value
