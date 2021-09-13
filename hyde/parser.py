@@ -3,6 +3,7 @@ from hyde.token import TokenType
 import hyde.expressions as Expressions
 import hyde.statements as Statements
 
+
 class ParseError(BaseError):
     pass
 

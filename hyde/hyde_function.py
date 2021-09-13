@@ -2,6 +2,7 @@ from hyde.environment import Environment
 from hyde.errors import Return
 from hyde.hyde_callable import HydeCallable
 
+
 class HydeFunction(HydeCallable):
     def __init__(self, declaration, closure):
         self.declaration = declaration

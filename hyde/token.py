@@ -1,5 +1,6 @@
 from enum import Enum, auto, unique
 
+
 @unique
 class TokenType(Enum):
     # Single-character tokens

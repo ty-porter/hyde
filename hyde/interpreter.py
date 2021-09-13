@@ -21,6 +21,7 @@ class Interpreter(Visitor):
         self.runtime     = runtime
         self.globals     = Environment()
         self.environment = self.globals
+        self.locals      = {}
 
         Globals.define(self.globals)
 
@@ -47,10 +48,18 @@ class Interpreter(Visitor):
         finally:
             self.environment = previous
 
+    def resolve(self, expr, depth):
+        self.locals[expr] = depth
+
     # Visit Expressions
     def visit_assign(self, expr):
         value = self.visit(expr.value)
-        self.environment.assign(expr.name, value)
+
+        distance = self.locals.get(expr)
+        if distance is not None:
+            self.environment.assign_at(distance, expr.name, value)
+        else:
+            self.globals.assign(expr.name, value)
 
         return value
 
@@ -138,7 +147,7 @@ class Interpreter(Visitor):
             return float(right) * -1
 
     def visit_variable(self, expr):
-        return self.environment.get(expr.name)
+        return self.look_up_variable(expr.name, expr)
 
     # Visit Statements
     def visit_block(self, stmt):
@@ -205,6 +214,14 @@ class Interpreter(Visitor):
             return
 
         self.runtime_error(operator, 'Operands must be numbers.')
+
+    def look_up_variable(self, name, expr):
+        distance = self.locals.get(expr)
+
+        if distance is not None:
+            return self.environment.get_at(distance, name.lexeme)
+        else:
+            return self.globals.get(name)
 
     def error(self, token, message):
         raise InterpreterError(token, message)

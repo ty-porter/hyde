@@ -1,5 +1,6 @@
 from hyde.interpreter import Interpreter
 from hyde.parser import Parser
+from hyde.resolver import ResolutionError, Resolver
 from hyde.tokenizer import Tokenizer
 
 import sys
@@ -49,10 +50,17 @@ class Hyde:
         tokens     = tokenizer.scan_tokens()
         parser     = Parser(self, tokens)
         statements = parser.parse()
+        
+        if self.handle_errors():
+            return
 
-        if self.had_error or self.had_runtime_error:
-            self.had_error         = False
-            self.had_runtime_error = False
+        try:
+            resolver = Resolver(self.interpreter)
+            resolver.resolve(statements)
+        except ResolutionError as ex:
+            self.error(ex)
+
+        if self.handle_errors():
             return
 
         self.interpreter.interpret(statements)
@@ -73,6 +81,15 @@ class Hyde:
         args = sys.argv[1:]
 
         return args
+
+    def handle_errors(self):
+        if self.had_error or self.had_runtime_error:
+            self.had_error         = False
+            self.had_runtime_error = False
+
+            return True
+
+        return False
 
 
 lang = Hyde()
