@@ -1,6 +1,6 @@
-from lib.environment import Environment
-from lib.errors import Return
-from lib.hyde_callable import HydeCallable
+from hyde.environment import Environment
+from hyde.errors import Return
+from hyde.hyde_callable import HydeCallable
 
 class HydeFunction(HydeCallable):
     def __init__(self, declaration, closure):

@@ -1,4 +1,4 @@
-from lib.expressions import Visitor
+from hyde.expressions import Visitor
 
 class ASTPrinter(Visitor):
     def generate(self, expr):

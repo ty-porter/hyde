@@ -1,6 +1,6 @@
-from lib.interpreter import Interpreter
-from lib.parser import Parser
-from lib.tokenizer import Tokenizer
+from hyde.interpreter import Interpreter
+from hyde.parser import Parser
+from hyde.tokenizer import Tokenizer
 
 import sys
 

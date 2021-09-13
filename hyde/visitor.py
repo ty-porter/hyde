@@ -1,5 +1,5 @@
-from lib.expressions import Visitor as ExpressionVisitor
-from lib.statements import Visitor as StatementVisitor
+from hyde.expressions import Visitor as ExpressionVisitor
+from hyde.statements import Visitor as StatementVisitor
 
 
 class Visitor(ExpressionVisitor, StatementVisitor):

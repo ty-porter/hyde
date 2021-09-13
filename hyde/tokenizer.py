@@ -1,5 +1,5 @@
-from lib.errors import BaseError
-from lib.token import Token, TokenType
+from hyde.errors import BaseError
+from hyde.token import Token, TokenType
 
 class TokenizerError(BaseError):
     pass

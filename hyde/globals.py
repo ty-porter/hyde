@@ -1,4 +1,4 @@
-from lib.hyde_callable import HydeCallable
+from hyde.hyde_callable import HydeCallable
 
 
 class Globals:

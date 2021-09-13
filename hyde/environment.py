@@ -1,4 +1,4 @@
-from lib.errors import BaseError
+from hyde.errors import BaseError
 
 
 class RuntimeError(BaseError):

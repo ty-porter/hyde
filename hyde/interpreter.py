@@ -1,11 +1,11 @@
-from lib.hyde_function import HydeFunction
-from lib.globals import Globals
-from lib.hyde_callable import HydeCallable
-from lib.environment import Environment
-from lib.environment import RuntimeError as EnvironmentRuntimeError
-from lib.errors import BaseError, Return
-from lib.token import TokenType
-from lib.visitor import Visitor
+from hyde.hyde_function import HydeFunction
+from hyde.globals import Globals
+from hyde.hyde_callable import HydeCallable
+from hyde.environment import Environment
+from hyde.environment import RuntimeError as EnvironmentRuntimeError
+from hyde.errors import BaseError, Return
+from hyde.token import TokenType
+from hyde.visitor import Visitor
 
 
 class InterpreterError(BaseError):
