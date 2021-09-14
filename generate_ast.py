@@ -19,7 +19,7 @@ class ASTGenerator:
     }
 
     STATEMENTS = {
-        # if, return, and while are reserved words in Python
+        # class, if, return, and while are reserved words in Python
         'Statement': None,
         'Block': ['statements'],
         'ClassDef': ['name', 'methods'],

@@ -90,7 +90,3 @@ class Hyde:
             return True
 
         return False
-
-
-lang = Hyde()
-lang.run()
