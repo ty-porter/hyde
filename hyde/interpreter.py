@@ -1,9 +1,11 @@
-from hyde.hyde_function import HydeFunction
-from hyde.globals import Globals
-from hyde.hyde_callable import HydeCallable
+from hyde.hyde_instance import HydeInstance, HydeInstanceError
 from hyde.environment import Environment
 from hyde.environment import RuntimeError as EnvironmentRuntimeError
 from hyde.errors import BaseError, Return
+from hyde.globals import Globals
+from hyde.hyde_callable import HydeCallable
+from hyde.hyde_class import HydeClass
+from hyde.hyde_function import HydeFunction
 from hyde.token import TokenType
 from hyde.visitor import Visitor
 
@@ -31,7 +33,7 @@ class Interpreter(Visitor):
                 self.execute(statement)
         except InterpreterError as ex:
             self.runtime.error(ex)
-        except (InterpreterRuntimeError, EnvironmentRuntimeError) as ex:
+        except (HydeInstanceError, InterpreterRuntimeError, EnvironmentRuntimeError) as ex:
             self.runtime.runtime_error(ex)
 
     def execute(self, stmt):
@@ -97,6 +99,7 @@ class Interpreter(Visitor):
             self.runtime_error(operator, 'Operands must be two numbers or two strings.')
         elif operator.type == TokenType.SLASH:
             self.check_number_operands(operator, left, right)
+            self.guard_division_by_zero(operator, right)
             return float(left) / float(right)
         elif operator.type == TokenType.STAR:
             self.check_number_operands(operator, left, right)
@@ -119,6 +122,14 @@ class Interpreter(Visitor):
 
         return callee.call(self, arguments)
 
+    def visit_get(self, expr):
+        object = self.visit(expr.object)
+
+        if isinstance(object, HydeInstance):
+            return object.get(expr.name)
+
+        raise InterpreterRuntimeError(expr.name, 'Only instances have properties.')
+
     def visit_grouping(self, expr):
         return self.visit(expr.expression)
 
@@ -137,6 +148,20 @@ class Interpreter(Visitor):
 
         return self.visit(expr.right)
 
+    def visit_set(self, expr):
+        object = self.visit(expr.object)
+
+        if not isinstance(object, HydeInstance):
+            raise InterpreterRuntimeError(expr.name, 'Only instances have fields.')
+
+        value = self.visit(expr.value)
+        object.set(expr.name, value)
+
+        return value
+
+    def visit_this(self, expr):
+        return self.look_up_variable(expr.keyword, expr)
+
     def visit_unary(self, expr):
         right = self.visit(expr.right)
 
@@ -152,6 +177,17 @@ class Interpreter(Visitor):
     # Visit Statements
     def visit_block(self, stmt):
         self.execute_block(stmt.statements, Environment(enclosing = self.environment))
+
+    def visit_classdef(self, stmt):
+        self.environment.define(stmt.name.lexeme, None)
+
+        methods = {}
+        for method in stmt.methods:
+            function = HydeFunction(method, self.environment, method.name.lexeme == 'init')
+            methods[method.name.lexeme] = function
+
+        klass = HydeClass(stmt.name.lexeme, methods)
+        self.environment.assign(stmt.name, klass)
 
     def visit_expression(self, stmt):
         self.visit(stmt.expression)
@@ -214,6 +250,10 @@ class Interpreter(Visitor):
             return
 
         self.runtime_error(operator, 'Operands must be numbers.')
+
+    def guard_division_by_zero(self, operator, right):
+        if float(right) == 0:
+            self.runtime_error(operator, "Can't divide by zero.")
 
     def look_up_variable(self, name, expr):
         distance = self.locals.get(expr)

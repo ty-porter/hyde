@@ -7,6 +7,12 @@ class Block(Statement):
         self.statements = statements
 
 
+class ClassDef(Statement):
+    def __init__(self, name, methods):
+        self.name = name
+        self.methods = methods
+
+
 class Expression(Statement):
     def __init__(self, expression):
         self.expression = expression
@@ -53,6 +59,9 @@ class Visitor:
     # Base methods to be overridden in child classes
     def visit_block(self, block):
         raise NotImplementedError('visit_block')
+
+    def visit_classdef(self, classdef):
+        raise NotImplementedError('visit_classdef')
 
     def visit_expression(self, expression):
         raise NotImplementedError('visit_expression')

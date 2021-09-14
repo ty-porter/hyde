@@ -1,12 +1,21 @@
 from enum import Enum, auto, unique
 from hyde.errors import BaseError
+from hyde.hyde_instance import HydeInstance
 from hyde.visitor import Visitor
 
 
 @unique
 class FunctionType(Enum):
-    NONE     = auto()
-    FUNCTION = auto()
+    NONE        = auto()
+    FUNCTION    = auto()
+    INITIALIZER = auto()
+    METHOD      = auto()
+
+
+@unique
+class ClassType(Enum):
+    NONE  = auto()
+    CLASS = auto()
 
 
 class ResolutionError(BaseError):
@@ -15,9 +24,10 @@ class ResolutionError(BaseError):
 
 class Resolver(Visitor):
     def __init__(self, interpreter):
-        self.interpreter = interpreter
-        self.scopes      = [{}]
-        self.current_fn  = FunctionType.NONE
+        self.interpreter   = interpreter
+        self.scopes        = [{}]
+        self.current_fn    = FunctionType.NONE
+        self.current_klass = ClassType.NONE
 
     # Visit Expressions
     def visit_assign(self, expr):
@@ -34,6 +44,9 @@ class Resolver(Visitor):
         for argument in expr.arguments:
             self.resolve_single(argument)
 
+    def visit_get(self, expr):
+        self.resolve_single(expr.object)
+
     def visit_grouping(self, expr):
         self.resolve_single(expr.expression)
 
@@ -43,6 +56,16 @@ class Resolver(Visitor):
     def visit_logical(self, expr):
         self.resolve_single(expr.left)
         self.resolve_single(expr.right)
+
+    def visit_set(self, expr):
+        self.resolve_single(expr.value)
+        self.resolve_single(expr.object)
+
+    def visit_this(self, expr):
+        if self.current_klass == ClassType.NONE:
+            raise ResolutionError(expr.keyword, "Can't use 'this' outside of a class.")
+
+        self.resolve_local(expr, expr.keyword)
 
     def visit_unary(self, expr):
         self.resolve_single(expr.right)
@@ -58,6 +81,27 @@ class Resolver(Visitor):
         self.begin_scope()
         self.resolve(stmt.statements)
         self.end_scope()
+
+    def visit_classdef(self, stmt):
+        enclosing_klass = self.current_klass
+        self.current_klass = ClassType.CLASS
+
+        self.declare(stmt.name)
+        self.define(stmt.name)
+
+        self.begin_scope()
+        self.scopes[-1]['this'] = True
+
+        for method in stmt.methods:
+            declaration = FunctionType.METHOD
+
+            if method.name.lexeme == 'init':
+                declaration = FunctionType.INITIALIZER
+
+            self.resolve_function(method, declaration)
+        
+        self.end_scope()
+        self.current_klass = enclosing_klass
 
     def visit_expression(self, stmt):
         self.resolve_single(stmt.expression)
@@ -83,6 +127,8 @@ class Resolver(Visitor):
             raise ResolutionError(stmt.keyword, "Can't return from top-level code.")
 
         if stmt.value is not None:
+            if self.current_fn == FunctionType.INITIALIZER:
+                raise ResolutionError(stmt.keyword, "Can't return a value from an initializer.")
             self.resolve_single(stmt.value)
 
     def visit_var(self, stmt):

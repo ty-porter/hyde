@@ -48,7 +48,9 @@ class Parser:
 
     def declaration(self):
         try:
-            if self.match(TokenType.FUN):
+            if self.match(TokenType.CLASS):
+                return self.class_declaration()
+            elif self.match(TokenType.FUN):
                 return self.function("function")
             elif self.match(TokenType.VAR):
                 return self.var_declaration()
@@ -98,6 +100,18 @@ class Parser:
             return Statements.Block(self.block())
 
         return self.expression_statement()
+
+    def class_declaration(self):
+        name = self.consume(TokenType.IDENTIFIER, 'Expected class name.')
+        self.consume(TokenType.LEFT_BRACE, "Expect '{' before class body.")
+
+        methods = []
+        while not self.check(TokenType.RIGHT_BRACE) and not self.is_at_end():
+            methods.append(self.function('method'))
+
+        self.consume(TokenType.RIGHT_BRACE, "Expect '}' after class body.")
+
+        return Statements.ClassDef(name, methods)
 
     def var_declaration(self):
         name = self.consume(TokenType.IDENTIFIER, 'Expected variable name.')
@@ -242,6 +256,8 @@ class Parser:
             return Expressions.Literal(None)
         elif self.match(TokenType.NUMBER, TokenType.STRING):
             return Expressions.Literal(self.previous().literal)
+        elif self.match(TokenType.THIS):
+            return Expressions.This(self.previous())
         elif self.match(TokenType.IDENTIFIER):
             return Expressions.Variable(self.previous())
         elif self.match(TokenType.LEFT_PAREN):
@@ -293,6 +309,8 @@ class Parser:
                 name = expr.name
                 
                 return Expressions.Assign(name, value)
+            elif isinstance(expr, Expressions.Get):
+                return Expressions.Set(expr.object, expr.name, value)
 
             self.error(equals, 'Invalid assignment target.')
 
@@ -304,6 +322,9 @@ class Parser:
         while True:
             if self.match(TokenType.LEFT_PAREN):
                 expr = self.finish_call(expr)
+            elif self.match(TokenType.DOT):
+                name = self.consume(TokenType.IDENTIFIER, "Expected property name after '.'.")
+                expr = Expressions.Get(expr, name)
             else:
                 break
 

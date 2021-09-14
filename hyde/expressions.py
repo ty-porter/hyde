@@ -22,6 +22,12 @@ class Call(Expression):
         self.arguments = arguments
 
 
+class Get(Expression):
+    def __init__(self, object, name):
+        self.object = object
+        self.name = name
+
+
 class Grouping(Expression):
     def __init__(self, expression):
         self.expression = expression
@@ -37,6 +43,18 @@ class Logical(Expression):
         self.left = left
         self.operator = operator
         self.right = right
+
+
+class Set(Expression):
+    def __init__(self, object, name, value):
+        self.object = object
+        self.name = name
+        self.value = value
+
+
+class This(Expression):
+    def __init__(self, keyword):
+        self.keyword = keyword
 
 
 class Unary(Expression):
@@ -61,6 +79,9 @@ class Visitor:
     def visit_call(self, call):
         raise NotImplementedError('visit_call')
 
+    def visit_get(self, get):
+        raise NotImplementedError('visit_get')
+
     def visit_grouping(self, grouping):
         raise NotImplementedError('visit_grouping')
 
@@ -69,6 +90,12 @@ class Visitor:
 
     def visit_logical(self, logical):
         raise NotImplementedError('visit_logical')
+
+    def visit_set(self, set):
+        raise NotImplementedError('visit_set')
+
+    def visit_this(self, this):
+        raise NotImplementedError('visit_this')
 
     def visit_unary(self, unary):
         raise NotImplementedError('visit_unary')

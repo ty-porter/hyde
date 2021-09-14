@@ -1,16 +1,19 @@
 class ASTGenerator:
 
-    EXPRESSIONS_PATH = 'lib/expressions.py'
-    STATEMENTS_PATH = 'lib/statements.py'
+    EXPRESSIONS_PATH = 'hyde/expressions.py'
+    STATEMENTS_PATH = 'hyde/statements.py'
 
     EXPRESSIONS = {
         'Expression': None,
         'Assign': ['name', 'value'],
         'Binary': ['left', 'operator', 'right'],
         'Call': ['callee', 'paren', 'arguments'],
+        'Get': ['object', 'name'],
         'Grouping': ['expression'],
         'Literal': ['value'],
         'Logical': ['left', 'operator', 'right'],
+        'Set': ['object', 'name', 'value'],
+        'This': ['keyword'],
         'Unary': ['operator', 'right'],
         'Variable': ['name']
     }
@@ -19,6 +22,7 @@ class ASTGenerator:
         # if, return, and while are reserved words in Python
         'Statement': None,
         'Block': ['statements'],
+        'ClassDef': ['name', 'methods'],
         'Expression': ['expression'],
         'Function': ['name', 'params', 'body'],
         'IfStmt': ['condition', 'then_branch', 'else_branch'],
