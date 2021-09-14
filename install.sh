@@ -1,5 +1,5 @@
-pip uninstall hyde -y
-pip install -e .
+pip uninstall hyde-lang -y
+pip install hyde-lang
 
 python setup.py install
 
