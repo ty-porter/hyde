@@ -8,8 +8,9 @@ class Block(Statement):
 
 
 class ClassDef(Statement):
-    def __init__(self, name, methods):
+    def __init__(self, name, superclass, methods):
         self.name = name
+        self.superclass = superclass
         self.methods = methods
 
 

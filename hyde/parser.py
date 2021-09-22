@@ -103,6 +103,12 @@ class Parser:
 
     def class_declaration(self):
         name = self.consume(TokenType.IDENTIFIER, 'Expected class name.')
+        superclass = None
+
+        if self.match(TokenType.LESS):
+            self.consume(TokenType.IDENTIFIER, 'Expected superclass name.')
+            superclass = Expressions.Variable(self.previous())
+
         self.consume(TokenType.LEFT_BRACE, "Expect '{' before class body.")
 
         methods = []
@@ -111,7 +117,7 @@ class Parser:
 
         self.consume(TokenType.RIGHT_BRACE, "Expect '}' after class body.")
 
-        return Statements.ClassDef(name, methods)
+        return Statements.ClassDef(name, superclass, methods)
 
     def var_declaration(self):
         name = self.consume(TokenType.IDENTIFIER, 'Expected variable name.')
@@ -256,13 +262,19 @@ class Parser:
             return Expressions.Literal(None)
         elif self.match(TokenType.NUMBER, TokenType.STRING):
             return Expressions.Literal(self.previous().literal)
+        elif self.match(TokenType.SUPER):
+            keyword = self.previous()
+            self.consume(TokenType.DOT, "Expected '.' after 'super'.")
+            method = self.consume(TokenType.IDENTIFIER, 'Expected superclass method name.')
+
+            return Expressions.Super(keyword, method)
         elif self.match(TokenType.THIS):
             return Expressions.This(self.previous())
         elif self.match(TokenType.IDENTIFIER):
             return Expressions.Variable(self.previous())
         elif self.match(TokenType.LEFT_PAREN):
             expr = self.expression()
-            self.consume(TokenType.RIGHT_PAREN, "Expect ')' after expression")
+            self.consume(TokenType.RIGHT_PAREN, "Expected ')' after expression")
 
             return Expressions.Grouping(expr)
 

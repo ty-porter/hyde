@@ -5,9 +5,10 @@ from hyde.hyde_instance import HydeInstance
 class HydeClass(HydeCallable):
     arity = 0
 
-    def __init__(self, name, methods):
-        self.name    = name
-        self.methods = methods
+    def __init__(self, name, superclass, methods):
+        self.name       = name
+        self.superclass = superclass
+        self.methods    = methods
 
     def call(self, interpreter, arguments):
         instance    = HydeInstance(self)
@@ -21,6 +22,9 @@ class HydeClass(HydeCallable):
     def find_method(self, name):
         if name in self.methods:
             return self.methods[name]
+
+        if self.superclass is not None:
+            return self.superclass.find_method(name)
 
     def __str__(self):
         return self.name

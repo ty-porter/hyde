@@ -13,6 +13,7 @@ class ASTGenerator:
         'Literal': ['value'],
         'Logical': ['left', 'operator', 'right'],
         'Set': ['object', 'name', 'value'],
+        'Super': ['keyword', 'method'],
         'This': ['keyword'],
         'Unary': ['operator', 'right'],
         'Variable': ['name']
@@ -22,7 +23,7 @@ class ASTGenerator:
         # class, if, return, and while are reserved words in Python
         'Statement': None,
         'Block': ['statements'],
-        'ClassDef': ['name', 'methods'],
+        'ClassDef': ['name', 'superclass', 'methods'],
         'Expression': ['expression'],
         'Function': ['name', 'params', 'body'],
         'IfStmt': ['condition', 'then_branch', 'else_branch'],

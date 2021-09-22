@@ -14,8 +14,9 @@ class FunctionType(Enum):
 
 @unique
 class ClassType(Enum):
-    NONE  = auto()
-    CLASS = auto()
+    NONE     = auto()
+    CLASS    = auto()
+    SUBCLASS = auto()
 
 
 class ResolutionError(BaseError):
@@ -27,7 +28,7 @@ class Resolver(Visitor):
         self.interpreter   = interpreter
         self.scopes        = [{}]
         self.current_fn    = FunctionType.NONE
-        self.current_klass = ClassType.NONE
+        self.current_class = ClassType.NONE
 
     # Visit Expressions
     def visit_assign(self, expr):
@@ -61,8 +62,15 @@ class Resolver(Visitor):
         self.resolve_single(expr.value)
         self.resolve_single(expr.object)
 
+    def visit_super(self, expr):
+        if self.current_class == ClassType.NONE:
+            raise ResolutionError(expr.keyword, "Can't use 'super' outside of a class.")
+        elif self.current_class != ClassType.SUBCLASS:
+            raise ResolutionError(expr.keyword, "Can't use 'super' in a class with no superclass.")
+        self.resolve_local(expr, expr.keyword)
+
     def visit_this(self, expr):
-        if self.current_klass == ClassType.NONE:
+        if self.current_class == ClassType.NONE:
             raise ResolutionError(expr.keyword, "Can't use 'this' outside of a class.")
 
         self.resolve_local(expr, expr.keyword)
@@ -83,11 +91,22 @@ class Resolver(Visitor):
         self.end_scope()
 
     def visit_classdef(self, stmt):
-        enclosing_klass = self.current_klass
-        self.current_klass = ClassType.CLASS
+        enclosing_class = self.current_class
+        self.current_class = ClassType.CLASS
 
         self.declare(stmt.name)
         self.define(stmt.name)
+
+        if stmt.superclass is not None and stmt.name.lexeme == stmt.superclass.name.lexeme:
+            raise ResolutionError(stmt.superclass.name, "A class can't inherit from itself.")
+
+        if stmt.superclass is not None:
+            self.current_class = ClassType.SUBCLASS
+            self.resolve_single(stmt.superclass)
+
+        if stmt.superclass is not None:
+            self.begin_scope()
+            self.scopes[-1]['super'] = True
 
         self.begin_scope()
         self.scopes[-1]['this'] = True
@@ -101,7 +120,11 @@ class Resolver(Visitor):
             self.resolve_function(method, declaration)
         
         self.end_scope()
-        self.current_klass = enclosing_klass
+
+        if stmt.superclass is not None:
+            self.end_scope()
+
+        self.current_class = enclosing_class
 
     def visit_expression(self, stmt):
         self.resolve_single(stmt.expression)

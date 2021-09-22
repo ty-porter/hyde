@@ -52,6 +52,12 @@ class Set(Expression):
         self.value = value
 
 
+class Super(Expression):
+    def __init__(self, keyword, method):
+        self.keyword = keyword
+        self.method = method
+
+
 class This(Expression):
     def __init__(self, keyword):
         self.keyword = keyword
@@ -93,6 +99,9 @@ class Visitor:
 
     def visit_set(self, set):
         raise NotImplementedError('visit_set')
+
+    def visit_super(self, super):
+        raise NotImplementedError('visit_super')
 
     def visit_this(self, this):
         raise NotImplementedError('visit_this')
