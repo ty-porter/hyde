@@ -40,7 +40,7 @@ class TokenType(Enum):
     FUN    = auto()
     FOR    = auto()
     IF     = auto()
-    NIL    = auto()
+    NONE   = auto()
     OR     = auto()
     PRINT  = auto()
     RETURN = auto()

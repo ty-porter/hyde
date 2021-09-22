@@ -252,7 +252,7 @@ class Parser:
             return Expressions.Literal(False)
         elif self.match(TokenType.TRUE):
             return Expressions.Literal(True)
-        elif self.match(TokenType.NIL):
+        elif self.match(TokenType.NONE):
             return Expressions.Literal(None)
         elif self.match(TokenType.NUMBER, TokenType.STRING):
             return Expressions.Literal(self.previous().literal)

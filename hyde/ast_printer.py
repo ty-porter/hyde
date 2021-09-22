@@ -14,9 +14,6 @@ class ASTPrinter(Visitor):
         return self.parenthesize('group', grouping.expression)
 
     def visit_literal(self, literal):
-        if literal.value == None:
-            return 'nil'
-
         return str(literal.value)
 
     def visit_unary(self, unary):
