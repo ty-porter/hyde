@@ -1,4 +1,5 @@
-from hyde.hyde_array import HydeArray
+from hyde.primitives.array import Array as HydeArray
+from hyde.primitives.map import Map as HydeMap
 from hyde.hyde_callable import HydeCallable
 
 
@@ -28,10 +29,19 @@ class Globals:
         def call(self, _interpreter, _arguments):
             return round(self.time() * 1000)
 
+    
+    class Map(GlobalHydeCallable):
+        arity = 0
+        capitalized = True
+
+        def call(self, _interpreter, _arguments):
+            return HydeMap()
+
 
     GLOBAL_FUNCTIONS = [
         Array,
-        Clock
+        Clock,
+        Map
     ]
 
     @classmethod

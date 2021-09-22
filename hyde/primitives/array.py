@@ -2,7 +2,7 @@ from hyde.hyde_callable import HydeCallable
 from hyde.hyde_instance import HydeInstance, HydeInstanceError
 
 
-class HydeArray(HydeInstance):
+class Array(HydeInstance):
     name = "Array"
 
     class ArrayFunction(HydeCallable):
@@ -11,7 +11,7 @@ class HydeArray(HydeInstance):
             self.token = token
 
 
-    class ArrayGet(ArrayFunction):
+    class Get(ArrayFunction):
         arity = 1
 
         def call(self, _interpreter, arguments):
@@ -23,7 +23,7 @@ class HydeArray(HydeInstance):
                 raise HydeInstanceError(self.token, 'Array index out of range.')
 
         
-    class ArraySet(ArrayFunction):
+    class Set(ArrayFunction):
         arity = 2
 
         def call(self, _interpreter, arguments):
@@ -37,7 +37,7 @@ class HydeArray(HydeInstance):
                 raise HydeInstanceError(self.token, 'Array assignment index out of range.')
 
         
-    class ArrayLength(ArrayFunction):
+    class Length(ArrayFunction):
         arity = 0
         
         def call(self, _interpreter, _arguments):
@@ -49,13 +49,13 @@ class HydeArray(HydeInstance):
 
     def get(self, name):
         if name.lexeme == 'get':
-            return HydeArray.ArrayGet(self, name)
+            return Array.Get(self, name)
         elif name.lexeme == 'set':
-            return HydeArray.ArraySet(self, name)
+            return Array.Set(self, name)
         elif name.lexeme == 'length':
-            return HydeArray.ArrayLength(self, name)
+            return Array.Length(self, name)
 
-        raise HydeInstanceError(name, f'Undefined property {name.lexeme} for {self.klass} instance.')
+        raise HydeInstanceError(name, f'Undefined property {name.lexeme} for {self.name} instance.')
 
     def set(self, name, _value):
         raise HydeInstanceError(name, "Can't add properties to arrays.")
