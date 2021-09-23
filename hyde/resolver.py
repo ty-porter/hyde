@@ -180,10 +180,14 @@ class Resolver(Visitor):
         self.visit(other)
 
     def resolve_local(self, expr, name):
-        for i, scope in enumerate(reversed(self.scopes)):
-            if name.lexeme in scope:
-                self.interpreter.resolve(expr, len(self.scopes) - 1 - i)
-                return
+        distance = None
+
+        for i in range(len(self.scopes)):
+            if name.lexeme in self.scopes[i]:
+                distance = len(self.scopes) - 1 - i
+        
+        if distance is not None:
+            self.interpreter.resolve(expr, distance)
         
     def resolve_function(self, function, fn_type):
         enclosing_fn    = self.current_fn
