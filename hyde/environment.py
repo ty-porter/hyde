@@ -46,3 +46,12 @@ class Environment:
             environment = environment.enclosing
 
         return environment
+
+    def merge(self, other):
+        target = self
+
+        while other:
+            target.values.update(other.values)
+
+            target = self.enclosing
+            other  = other.enclosing

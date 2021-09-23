@@ -43,6 +43,7 @@ class Tokenizer:
         'fun':    TokenType.FUN,
         'for':    TokenType.FOR,
         'if':     TokenType.IF,
+        'load':   TokenType.LOAD,
         'None':   TokenType.NONE,
         'or':     TokenType.OR,
         'print':  TokenType.PRINT,

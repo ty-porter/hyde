@@ -33,6 +33,11 @@ class IfStmt(Statement):
         self.else_branch = else_branch
 
 
+class Load(Statement):
+    def __init__(self, path):
+        self.path = path
+
+
 class Print(Statement):
     def __init__(self, expression):
         self.expression = expression
@@ -72,6 +77,9 @@ class Visitor:
 
     def visit_ifstmt(self, ifstmt):
         raise NotImplementedError('visit_ifstmt')
+
+    def visit_load(self, load):
+        raise NotImplementedError('visit_load')
 
     def visit_print(self, print):
         raise NotImplementedError('visit_print')

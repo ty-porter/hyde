@@ -1,6 +1,5 @@
 from enum import Enum, auto, unique
 from hyde.errors import BaseError
-from hyde.hyde_instance import HydeInstance
 from hyde.visitor import Visitor
 
 
@@ -129,6 +128,12 @@ class Resolver(Visitor):
     def visit_expression(self, stmt):
         self.resolve_single(stmt.expression)
 
+    def visit_function(self, stmt):
+        self.declare(stmt.name)
+        self.define(stmt.name)
+
+        self.resolve_function(stmt, FunctionType.FUNCTION)
+
     def visit_ifstmt(self, stmt):
         self.resolve_single(stmt.condition)
         self.resolve_single(stmt.then_branch)
@@ -136,11 +141,8 @@ class Resolver(Visitor):
         if stmt.else_branch is not None:
             self.resolve_single(stmt.else_branch)
 
-    def visit_function(self, stmt):
-        self.declare(stmt.name)
-        self.define(stmt.name)
-
-        self.resolve_function(stmt, FunctionType.FUNCTION)
+    def visit_load(self, stmt):
+        pass
 
     def visit_print(self, stmt):
         self.resolve_single(stmt.expression)

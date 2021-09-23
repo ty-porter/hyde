@@ -27,6 +27,7 @@ class ASTGenerator:
         'Expression': ['expression'],
         'Function': ['name', 'params', 'body'],
         'IfStmt': ['condition', 'then_branch', 'else_branch'],
+        'Load': ['path'],
         'Print': ['expression'],
         'ReturnStmt': ['keyword', 'value'],
         'Var': ['name', 'initializer'],

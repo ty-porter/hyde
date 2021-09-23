@@ -11,6 +11,7 @@ class ParseError(BaseError):
 class Parser:
 
     STATEMENT_BOUNDARY_TOKENS = [
+        TokenType.LOAD,
         TokenType.CLASS,
         TokenType.FUN,
         TokenType.VAR,
@@ -86,7 +87,9 @@ class Parser:
         return Statements.Function(name, parameters, body)
 
     def statement(self):
-        if self.match(TokenType.FOR):
+        if self.match(TokenType.LOAD):
+            return self.load_statement()
+        elif self.match(TokenType.FOR):
             return self.for_statement()
         elif self.match(TokenType.IF):
             return self.if_statement()
@@ -130,6 +133,15 @@ class Parser:
         self.consume(TokenType.SEMICOLON, "Expected ';' after variable definition.")
 
         return Statements.Var(name, initializer)
+
+    def load_statement(self):
+        path_str = self.consume(TokenType.STRING, "Expected a path string after 'load'.")
+        
+        path = Expressions.Literal(path_str)
+
+        self.consume(TokenType.SEMICOLON, "Expected ';' after load path.")
+
+        return Statements.Load(path)
 
     def for_statement(self):
         '''

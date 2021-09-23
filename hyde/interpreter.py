@@ -9,6 +9,10 @@ from hyde.hyde_function import HydeFunction
 from hyde.token import TokenType
 from hyde.visitor import Visitor
 
+from hyde.tokenizer import Tokenizer
+from hyde.parser import Parser
+from hyde.resolver import Resolver
+
 
 class InterpreterError(BaseError):
     pass
@@ -227,6 +231,29 @@ class Interpreter(Visitor):
             self.execute(stmt.then_branch)
         else:
             self.execute(stmt.else_branch)
+
+    def visit_load(self, stmt):
+        path = self.visit(stmt.path)
+        
+        with open(path.literal) as hyde_load:
+            expr = hyde_load.read()
+
+        try:
+            interpreter = Interpreter(self.runtime)
+            tokenizer   = Tokenizer(self.runtime, expr)
+            tokens      = tokenizer.scan_tokens()
+            parser      = Parser(self.runtime, tokens)
+            statements  = parser.parse()
+            resolver    = Resolver(interpreter)
+
+            resolver.resolve(statements)
+            interpreter.interpret(statements)
+
+            self.environment.merge(interpreter.environment)
+            self.locals.update(interpreter.locals)
+        except Exception as ex:
+            # Catch and re-raise
+            raise ex
 
     def visit_print(self, stmt):
         value = self.visit(stmt.expression)
