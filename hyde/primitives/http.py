@@ -89,7 +89,9 @@ class BasicHttpRequestHandler(HydeInstance):
                 def do_GET(self):
                     self.handle_single_request()
 
-            return HTTPServer(('', 5000), Handler)
+            port = int(os.environ.get('PORT', 5000))
+
+            return HTTPServer(('', port), Handler)
 
 
     class ToString(BasicHttpRequestHandlerFunction):
