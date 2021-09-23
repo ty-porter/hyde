@@ -17,7 +17,7 @@ class Hyde:
         args = self.parse_args()
         
         if len(args) > 2:
-            print('Usage: python main.py [script]')
+            print('Usage: hyde [script]')
             sys.exit(64)
         elif len(args) == 1:
             self.run_file(args[0])
@@ -64,6 +64,9 @@ class Hyde:
             return
 
         self.interpreter.interpret(statements)
+
+        if self.handle_errors():
+            return
 
     def error(self, error):
         self.report(error.token.line, type(error).__name__, error.token.lexeme, error.message)
