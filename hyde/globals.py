@@ -1,4 +1,5 @@
 from hyde.primitives.array import Array as HydeArray
+from hyde.primitives.http import BasicHttpRequestHandler as HydeBasicHttpRequestHandler
 from hyde.primitives.map import Map as HydeMap
 from hyde.hyde_callable import HydeCallable
 
@@ -21,6 +22,15 @@ class Globals:
             return HydeArray(size)
 
 
+    class BasicHttpRequestHandler(GlobalHydeCallable):
+        arity = 1
+        capitalized = True
+
+        def call(self, _interpreter, arguments):
+            request_attrs = arguments[0]
+
+            return HydeBasicHttpRequestHandler(request_attrs)
+
     class Clock(GlobalHydeCallable):
         from time import time
 
@@ -40,6 +50,7 @@ class Globals:
 
     GLOBAL_FUNCTIONS = [
         Array,
+        BasicHttpRequestHandler,
         Clock,
         Map
     ]
