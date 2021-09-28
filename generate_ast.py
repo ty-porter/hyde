@@ -10,7 +10,7 @@ class ASTGenerator:
         'Call': ['callee', 'paren', 'arguments'],
         'Get': ['object', 'name'],
         'Grouping': ['expression'],
-        'Literal': ['value'],
+        'Literal': ['value', 'token'],
         'Logical': ['left', 'operator', 'right'],
         'Set': ['object', 'name', 'value'],
         'Super': ['keyword', 'method'],

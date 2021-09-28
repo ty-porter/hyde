@@ -53,5 +53,8 @@ class Environment:
         while other:
             target.values.update(other.values)
 
+            if not self.enclosing and other.enclosing:
+                target.enclosing = Environment()
+
             target = self.enclosing
             other  = other.enclosing

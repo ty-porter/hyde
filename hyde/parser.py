@@ -135,9 +135,7 @@ class Parser:
         return Statements.Var(name, initializer)
 
     def load_statement(self):
-        path_str = self.consume(TokenType.STRING, "Expected a path string after 'load'.")
-        
-        path = Expressions.Literal(path_str)
+        path = self.expression()
 
         self.consume(TokenType.SEMICOLON, "Expected ';' after load path.")
 
@@ -174,7 +172,7 @@ class Parser:
             body = Statements.Block([body, Statements.Expression(increment)])
 
         if condition is None:
-            condition = Expressions.Literal(True)
+            condition = Expressions.Literal(True, self.previous())
 
         body = Statements.WhileStmt(condition, body)
 
@@ -267,13 +265,13 @@ class Parser:
 
     def primary(self):
         if self.match(TokenType.FALSE):
-            return Expressions.Literal(False)
+            return Expressions.Literal(False, self.previous())
         elif self.match(TokenType.TRUE):
-            return Expressions.Literal(True)
+            return Expressions.Literal(True, self.previous())
         elif self.match(TokenType.NONE):
-            return Expressions.Literal(None)
+            return Expressions.Literal(None, self.previous())
         elif self.match(TokenType.NUMBER, TokenType.STRING):
-            return Expressions.Literal(self.previous().literal)
+            return Expressions.Literal(self.previous().literal, self.previous())
         elif self.match(TokenType.SUPER):
             keyword = self.previous()
             self.consume(TokenType.DOT, "Expected '.' after 'super'.")

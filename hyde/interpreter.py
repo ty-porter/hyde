@@ -2,6 +2,7 @@ from hyde.hyde_instance import HydeInstance, HydeInstanceError
 from hyde.environment import Environment
 from hyde.environment import RuntimeError as EnvironmentRuntimeError
 from hyde.errors import BaseError, Return
+import hyde.expressions as Expressions
 from hyde.globals import Globals
 from hyde.hyde_callable import HydeCallable
 from hyde.hyde_class import HydeClass
@@ -234,10 +235,16 @@ class Interpreter(Visitor):
 
     def visit_load(self, stmt):
         path = self.visit(stmt.path)
-        
-        with open(path.literal) as hyde_load:
-            expr = hyde_load.read()
 
+        if not isinstance(path, str):
+            self.load_error(stmt, "Expected a string path name after 'load'.")
+        
+        try:
+            with open(path) as hyde_load:
+                expr = hyde_load.read()
+        except FileNotFoundError as _ex:
+            self.load_error(stmt, 'Path not found.')
+        
         try:
             interpreter = Interpreter(self.runtime)
             tokenizer   = Tokenizer(self.runtime, expr)
@@ -302,6 +309,7 @@ class Interpreter(Visitor):
         if isinstance(left, float) and isinstance(right, float):
             return
 
+        breakpoint()
         self.runtime_error(operator, 'Operands must be numbers.')
 
     def guard_division_by_zero(self, operator, right):
@@ -321,3 +329,9 @@ class Interpreter(Visitor):
 
     def runtime_error(self, token, message):
         raise InterpreterRuntimeError(token, message)
+
+    def load_error(self, stmt, message):
+        if isinstance(stmt.path, Expressions.Variable):
+            raise InterpreterRuntimeError(stmt.path.name, message)
+        elif isinstance(stmt.path, Expressions.Literal):
+            raise InterpreterRuntimeError(stmt.path.token, message)

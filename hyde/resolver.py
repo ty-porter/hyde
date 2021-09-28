@@ -142,7 +142,7 @@ class Resolver(Visitor):
             self.resolve_single(stmt.else_branch)
 
     def visit_load(self, stmt):
-        pass
+        self.resolve_single(stmt.path)
 
     def visit_print(self, stmt):
         self.resolve_single(stmt.expression)

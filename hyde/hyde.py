@@ -3,10 +3,15 @@ from hyde.parser import Parser
 from hyde.resolver import ResolutionError, Resolver
 from hyde.tokenizer import Tokenizer
 
+import os
 import sys
 
 
 class Hyde:
+    NATIVE_FUNCTION_FILES = [
+        'native/array.hy'
+    ]
+
     def __init__(self):
         self.debug_enabled     = False
         self.had_error         = False
@@ -19,7 +24,10 @@ class Hyde:
         if len(args) > 2:
             print('Usage: hyde [script]')
             sys.exit(64)
-        elif len(args) == 1:
+        
+        self.load_native_functions()
+
+        if len(args) == 1:
             self.run_file(args[0])
         else:
             self.run_prompt()
@@ -93,3 +101,15 @@ class Hyde:
             return True
 
         return False
+
+    def load_native_functions(self):
+        for relpath in self.NATIVE_FUNCTION_FILES:
+            self.load_native_function(relpath)
+
+    def load_native_function(self, hyde_relpath):
+        file_abs_path = os.path.abspath(os.path.dirname(__file__))
+        hyde_path = os.path.join(file_abs_path, hyde_relpath)
+
+        self.run_file(hyde_path)
+
+    

@@ -34,8 +34,9 @@ class Grouping(Expression):
 
 
 class Literal(Expression):
-    def __init__(self, value):
+    def __init__(self, value, token):
         self.value = value
+        self.token = token
 
 
 class Logical(Expression):
