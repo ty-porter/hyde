@@ -2,7 +2,10 @@
 
 from setuptools import setup, find_packages
 
-version = '0.0.6'
+version = '0.0.7'
+
+with open("DESCRIPTION.md", "r") as fh:
+    long_description = fh.read()
 
 setup(
     name='hyde-lang',
@@ -11,6 +14,8 @@ setup(
     version=version,
     license='MIT',
     description='A Python-based interpretation of Lox',
+    long_description=long_description,
+    long_description_content_type='text/markdown',
     url='https://github.com/ty-porter/hyde',
     classifiers=[
         'License :: OSI Approved :: MIT License',
