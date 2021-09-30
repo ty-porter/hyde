@@ -37,9 +37,20 @@ class Map(HydeInstance):
         
         def call(self, _interpreter, _arguments):
             array = Array(len(self.map.value_map))
-            array.elements = self.map.value_map.keys()
+            array.elements = list(self.map.value_map.keys())
 
             return array
+
+    class Merge(MapFunction):
+        arity = 1
+
+        def call(self, _interpreter, arguments):
+            other = arguments[0]
+            new_map = Map()
+            new_map.value_map = self.map.value_map
+            new_map.value_map.update(other.value_map)
+
+            return new_map
 
 
     def __init__(self):
@@ -52,6 +63,8 @@ class Map(HydeInstance):
             return Map.Set(self, name)
         elif name.lexeme == 'keys':
             return Map.Keys(self, name)
+        elif name.lexeme == 'merge':
+            return Map.Merge(self, name)
 
         raise HydeInstanceError(name, f'Undefined property {name.lexeme} for {self.name} instance.')
 

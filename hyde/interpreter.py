@@ -264,7 +264,8 @@ class Interpreter(Visitor):
 
     def visit_print(self, stmt):
         value = self.visit(stmt.expression)
-        print(value)
+        literal_value = str(value).encode("utf-8").decode("unicode_escape")
+        print(literal_value)
 
     def visit_returnstmt(self, stmt):
         value = None
